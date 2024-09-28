@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoes Catalog</title>
-    <link rel="stylesheet" href="https://telegram.org/js/telegram-web-app.js">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,6 +21,10 @@
             padding: 10px;
             cursor: pointer;
             transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%; /* Make each item of equal height */
         }
         .item:hover {
             transform: scale(1.02);
@@ -37,17 +40,17 @@
             font-weight: bold;
             color: green;
         }
-        .refresh-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .thumbnail-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px; /* Fixed height for images */
         }
-        .refresh-button:hover {
-            background-color: #0056b3;
+        .thumbnail {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover; /* Ensures the images fit properly within the container */
+            border-radius: 5px;
         }
         /* Modal Styles */
         .modal {
@@ -76,11 +79,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .thumbnail {
-            width: 100%; /* Thumbnail full width */
-            height: auto; /* Maintain aspect ratio */
-            border-radius: 5px;
-        }
         #cart {
             margin-top: 20px;
             border: 1px solid #ddd;
@@ -96,6 +94,7 @@
         .cart-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
         }
         .cart-item p {
@@ -116,13 +115,16 @@
             font-weight: bold;
             margin-top: 10px;
         }
+        .size-dropdown, .quantity-dropdown {
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
 
 <h1>Shoes Catalog</h1>
 <div id="catalog"></div>
-<button class="refresh-button" onclick="displayCatalog()">Refresh Catalog</button>
 
 <!-- Shopping Cart -->
 <div id="cart">
@@ -136,7 +138,6 @@
     <span class="close" onclick="closeModal()">&times;</span>
     <img class="modal-content" id="modalImage">
 </div>
-
 
 <script>
     const catalog = [
@@ -210,25 +211,50 @@
                 <h2>${item.name}</h2>
                 <p>${item.description}</p>
                 <p class="price">${item.price}</p>
-                <img src="${item.image}" alt="${item.name}" class="thumbnail">
-                <button onclick="addToCart('${item.name}', '${item.price}'); event.stopPropagation();">Add to Cart</button>
+                <div class="thumbnail-container">
+                    <img src="${item.image}" alt="${item.name}" class="thumbnail">
+                </div>
+                <div class="size-dropdown">
+                    <label for="size-${item.name}">Size: </label>
+                    <select id="size-${item.name}">
+                        <option value="EU 39">EU 39</option>
+                        <option value="EU 40">EU 40</option>
+                        <option value="EU 41">EU 41</option>
+                        <option value="EU 42">EU 42</option>
+                        <option value="EU 43">EU 43</option>
+                        <option value="EU 44">EU 44</option>
+                    </select>
+                </div>
+                <button onclick="addToCart('${item.name}', '${item.price}', '${item.image}'); event.stopPropagation();">Add to Cart</button>
             `;
             catalogDiv.appendChild(itemDiv);
         });
     }
 
-    function addToCart(itemName, itemPrice) {
-        const itemExists = cart.find(item => item.name === itemName);
-        if (!itemExists) {
-            cart.push({ name: itemName, price: itemPrice });
+    function addToCart(itemName, itemPrice, itemImage) {
+        const selectedSize = document.getElementById(`size-${itemName}`).value;
+        const existingItem = cart.find(item => item.name === itemName && item.size === selectedSize);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ name: itemName, price: itemPrice, size: selectedSize, quantity: 1, image: itemImage });
         }
         updateCart();
     }
 
-    function removeFromCart(itemName) {
-        const itemIndex = cart.findIndex(item => item.name === itemName);
+    function removeFromCart(itemName, itemSize) {
+        const itemIndex = cart.findIndex(item => item.name === itemName && item.size === itemSize);
         if (itemIndex > -1) {
             cart.splice(itemIndex, 1);
+        }
+        updateCart();
+    }
+
+    function updateQuantity(itemName, itemSize, newQuantity) {
+        const item = cart.find(item => item.name === itemName && item.size === itemSize);
+        if (item) {
+            item.quantity = parseInt(newQuantity);
         }
         updateCart();
     }
@@ -241,13 +267,16 @@
 
         cart.forEach(item => {
             const itemPrice = parseFloat(item.price.replace('$', ''));
-            totalPrice += itemPrice;
+            totalPrice += itemPrice * item.quantity;
 
             const cartItemDiv = document.createElement('li');
             cartItemDiv.className = 'cart-item';
             cartItemDiv.innerHTML = `
-                <p>${item.name} - ${item.price}</p>
-                <button class="remove-button" onclick="removeFromCart('${item.name}')">Remove</button>
+                <p>${item.name} (Size: ${item.size}) - $${itemPrice.toFixed(2)} x ${item.quantity}</p>
+                <div>
+                    <input type="number" min="1" value="${item.quantity}" onchange="updateQuantity('${item.name}', '${item.size}', this.value)">
+                    <button class="remove-button" onclick="removeFromCart('${item.name}', '${item.size}')">Remove</button>
+                </div>
             `;
             cartItemsDiv.appendChild(cartItemDiv);
         });
@@ -256,27 +285,20 @@
     }
 
     function openModal(imageSrc) {
-        const modal = document.getElementById("myModal");
-        const modalImage = document.getElementById("modalImage");
-        modal.style.display = "flex"; // Use flex for centering
-        modalImage.src = imageSrc;
+        const modal = document.getElementById('myModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = 'flex'; // Show the modal
+        modalImg.src = imageSrc; // Set the image
     }
 
     function closeModal() {
-        const modal = document.getElementById("myModal");
-        modal.style.display = "none";
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'none'; // Hide the modal
     }
 
-    // Call the function to display the catalog on load
-    window.onload = displayCatalog;
+    // Display the catalog when the page loads
+    displayCatalog();
 
-    // Close the modal when the user clicks anywhere outside of the image
-    window.onclick = function(event) {
-        const modal = document.getElementById("myModal");
-        if (event.target == modal) {
-            closeModal();
-        }
-    };
 </script>
 
 </body>
