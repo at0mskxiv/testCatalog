@@ -17,10 +17,10 @@ WEB_APP_URL = "https://at0mskxiv.github.io/testCatalog/index.html"  # Update wit
 # Start command to introduce the bot
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("Open Mini App", web_app=dict(url=WEB_APP_URL))]
+        [InlineKeyboardButton("Магазин МИМИЛАПКИ", web_app=dict(url=WEB_APP_URL))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text('Welcome to the App Catalog! Click the button below to launch the Mini App:', reply_markup=reply_markup)
+    await update.message.reply_text('Магазин МИМИЛАПКИ приветствует вас!\n Нажмите на кнопку ниже чтобы открыть миниприложение.', reply_markup=reply_markup)
 
 async def main() -> None:
     application = ApplicationBuilder().token(token).build()
