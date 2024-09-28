@@ -1,5 +1,7 @@
 body {
-    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* Fixed background color */
+    color: #000000; /* Text color */
+    font-family: Arial, sans-serif; /* Ensure a clean font */
     margin: 0;
     padding: 0;
 }
