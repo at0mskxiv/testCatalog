@@ -7,118 +7,163 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             padding: 0;
+            background-color: #f0f0f0;
         }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
         #catalog {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 columns */
-            gap: 20px; /* Space between items */
+            grid-template-columns: repeat(3, 1fr); /* 3 columns by default */
+            gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
         }
+
         .item {
+            background-color: #fff;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 100%; /* Make each item of equal height */
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s;
         }
+
         .item:hover {
             transform: scale(1.02);
         }
+
         .item h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .item p {
-            margin: 5px 0;
-        }
-        .item .price {
-            font-weight: bold;
-            color: green;
-        }
-        .thumbnail-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px; /* Fixed height for images */
-        }
-        .thumbnail {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: cover; /* Ensures the images fit properly within the container */
-            border-radius: 5px;
-        }
-        /* Modal Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
-            justify-content: center; /* Center modal content */
-            align-items: center; /* Center modal content */
-        }
-        .modal-content {
-            max-width: 90%; /* Set maximum width */
-            max-height: 90%; /* Set maximum height */
-        }
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        #cart {
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-        #cart h2 {
             font-size: 20px;
+            margin-bottom: 10px;
         }
+
+        .item p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .item .price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .thumbnail-container {
+            width: 100%;
+            height: 0;
+            padding-bottom: 75%; /* Aspect ratio for the image (4:3) */
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: cover; /* Make sure the image fits the container and maintains its aspect ratio */
+            border-radius: 4px;
+        }
+
+        .size-dropdown {
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #cart {
+            margin: 20px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+        }
+
+        #cart h2 {
+            margin-top: 0;
+        }
+
         #cart-items {
             list-style-type: none;
             padding: 0;
         }
+
         .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 10px;
-        }
-        .cart-item p {
-            margin: 0;
-        }
-        .remove-button {
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-        .remove-button:hover {
-            background-color: darkred;
-        }
-        #total-price {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .size-dropdown, .quantity-dropdown {
-            margin-top: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
 
+        .remove-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Media Queries for responsiveness */
+        @media (max-width: 768px) {
+            #catalog {
+                grid-template-columns: 1fr; /* 1 column for mobile devices */
+            }
+        }
     </style>
 </head>
 <body>
@@ -140,66 +185,16 @@
 </div>
 
 <script>
-    const catalog = [
-        {
-            name: "Item 1",
-            description: "Item 1 is designed to help with X.",
-            price: "$10.00",
-            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 2",
-            description: "Item 2 is designed to help with Y.",
-            price: "$15.00",
-            image: "https://images.unsplash.com/photo-1512374382149-233c42b6a83b?q=80&w=3024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 3",
-            description: "Item 3 is a great tool for Z.",
-            price: "$20.00",
-            image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=3698&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 4",
-            description: "Item 4 helps with A.",
-            price: "$25.00",
-            image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?q=80&w=2898&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 5",
-            description: "Item 5 is helpful for B.",
-            price: "$30.00",
-            image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=3512&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 6",
-            description: "Item 6 is great for C.",
-            price: "$35.00",
-            image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=3560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 7",
-            description: "Item 7 assists with D.",
-            price: "$40.00",
-            image: "https://plus.unsplash.com/premium_photo-1682125177822-63c27a3830ea?q=80&w=3687&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 8",
-            description: "Item 8 enhances E.",
-            price: "$45.00",
-            image: "https://images.unsplash.com/photo-1463100099107-aa0980c362e6?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            name: "Item 9",
-            description: "Item 9 facilitates F.",
-            price: "$50.00",
-            image: "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-    ];
+    async function fetchCatalog() {
+        const response = await fetch('catalog.json');
+        const data = await response.json();
+        return data;
+    }
 
     const cart = [];
 
-    function displayCatalog() {
+    async function displayCatalog() {
+        const catalog = await fetchCatalog();
         const catalogDiv = document.getElementById('catalog');
         catalogDiv.innerHTML = ''; // Clear any previous items
 
@@ -208,12 +203,12 @@
             itemDiv.className = 'item';
             itemDiv.onclick = () => openModal(item.image); // Open modal on click
             itemDiv.innerHTML = `
-                <h2>${item.name}</h2>
-                <p>${item.description}</p>
-                <p class="price">${item.price}</p>
                 <div class="thumbnail-container">
                     <img src="${item.image}" alt="${item.name}" class="thumbnail">
                 </div>
+                <h2>${item.name}</h2>
+                <p>${item.description}</p>
+                <p class="price">${item.price}</p>
                 <div class="size-dropdown">
                     <label for="size-${item.name}">Size: </label>
                     <select id="size-${item.name}">
@@ -296,10 +291,8 @@
         modal.style.display = 'none'; // Hide the modal
     }
 
-    // Display the catalog when the page loads
+    // Initialize catalog display
     displayCatalog();
-
 </script>
-
 </body>
 </html>
