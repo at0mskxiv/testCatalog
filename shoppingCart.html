@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #cart {
+            margin: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff; /* White background for cart */
+        }
+
+        #cart h2 {
+            font-size: 20px;
+        }
+
+        #cart-items {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cart-item p {
+            margin: 0;
+        }
+
+        .remove-button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .remove-button:hover {
+            background-color: darkred;
+        }
+
+        #total-price {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .quantity-dropdown {
+            margin-top: 10px;
+        }
+
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Shopping Cart</h1>
+<div id="cart">
+    <h2>Your Items</h2>
+    <ul id="cart-items"></ul>
+    <p id="total-price"></p>
+    <a href="index.html" class="back-button">Continue Shopping</a>
+</div>
+
+<script>
+    // Load cart from local storage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function displayCart() {
+        const cartItemsDiv = document.getElementById('cart-items');
+        cartItemsDiv.innerHTML = ''; // Clear any previous items
+        let totalPrice = 0;
+
+        cart.forEach(item => {
+            const itemDiv = document.createElement('li');
+            itemDiv.className = 'cart-item';
+            itemDiv.innerHTML = `
+                <p>${item.name} (Size: ${item.size})</p>
+                <div>
+                    <select class="quantity-dropdown" id="quantity-${item.name}" onchange="updateQuantity('${item.name}')">
+                        ${[...Array(10).keys()].map(i => `<option value="${i + 1}" ${i + 1 === item.quantity ? 'selected' : ''}>${i + 1}</option>`).join('')}
+                    </select>
+                    <button class="remove-button" onclick="removeFromCart('${item.name}')">Remove</button>
+                </div>
+            `;
+            cartItemsDiv.appendChild(itemDiv);
+            totalPrice += item.price * item.quantity;
+        });
+
+        document.getElementById('total-price').innerText = `Total Price: $${totalPrice.toFixed(2)}`;
+    }
+
+    function updateQuantity(itemName) {
+        const quantity = parseInt(document.getElementById(`quantity-${itemName}`).value);
+        const item = cart.find(item => item.name === itemName);
+        if (item) {
+            item.quantity = quantity;
+            saveCart();
+            displayCart();
+        }
+    }
+
+    function removeFromCart(itemName) {
+        const index = cart.findIndex(item => item.name === itemName);
+        if (index > -1) {
+            cart.splice(index, 1); // Remove item from cart
+            saveCart();
+            displayCart();
+        }
+    }
+
+    function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart to local storage
+    }
+
+    // Display the cart on page load
+    displayCart();
+</script>
+
+</body>
+</html>
