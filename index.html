@@ -68,6 +68,11 @@
                 catalogContainer.appendChild(itemElement);
             });
 
+                // Add a spacer after the last item
+                const spacer = document.createElement('div');
+                spacer.style.height = '20px'; // Adjust the height as needed
+                catalogContainer.appendChild(spacer);
+
             // Add event listeners to icons
             const icons = document.querySelectorAll('.add-to-cart-icon');
             icons.forEach(icon => {
