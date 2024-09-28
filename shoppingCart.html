@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <link rel="stylesheet" href="styles.css"> <!-- Ensure the path is correct -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> <!-- Add Material Icons -->
 </head>
 <body>
     <div class="header-container">
-        <h1>Shopping Cart</h1>
+        <img src="logo1.png" alt="Logo" class="logo"> <!-- Logo -->
     </div>
-    <div id="cart"></div>
+    
+    <div class="back-button" id="backButton" style="display: flex; align-items: center;">
+        <!-- <span class="material-icons">arrow_back</span> -->
+        <!-- <span style="margin-left: 5px;">Continue shopping</span> -->
+    </div>
+    
+    <div class="cart-container" id="cart"></div>
+    
     <h2 id="total">Total: $0.00</h2> <!-- Total cost display -->
     <div class="button-container" style="text-align: center;">
         <button class="continue-shopping" onclick="window.location.href='index.html'">Continue Shopping</button>
@@ -45,12 +53,12 @@
                 </div>
                 <div class="cart-item-details">
                     <h3>${item.name} (Size: ${item.size})</h3>
-                    <p>Price: ${item.price} x 
+                    <p style="display: flex; align-items: center;">Price: ${item.price} 
                         <select class="quantity-selector" data-name="${item.name}" data-size="${item.size}">
                             ${[...Array(11).keys()].map(i => `<option value="${i}" ${i === item.quantity ? 'selected' : ''}>${i}</option>`).join('')}
                         </select>
+                        <span class="material-icons delete-outline-icon" data-name="${item.name}" data-size="${item.size}" style="cursor: pointer; margin-left: 10px;">delete_outline</span>
                     </p>
-                    <button class="remove-button" data-name="${item.name}" data-size="${item.size}">Remove</button>
                 </div>
             `;
 
@@ -72,7 +80,7 @@
         });
 
         // Add event listeners to remove buttons
-        const removeButtons = document.querySelectorAll('.remove-button');
+        const removeButtons = document.querySelectorAll('.delete-outline-icon');
         removeButtons.forEach(button => {
             button.addEventListener('click', (event) => {
                 const itemName = event.target.getAttribute('data-name');
@@ -110,6 +118,26 @@
         displayCart(); // Refresh the cart display
     }
 
+    // Swipe detection variables
+    let startX; // Starting touch position
+
+    document.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX; // Capture the initial touch position
+    });
+
+    document.addEventListener('touchmove', (event) => {
+        const currentX = event.touches[0].clientX; // Get current touch position
+        if (currentX - startX > 50) { // Check if swiped right enough
+            window.location.href = 'index.html'; // Navigate back to catalog
+        }
+    });
+
+    // Back button click event
+    document.getElementById('backButton').addEventListener('click', () => {
+        window.location.href = 'index.html'; // Navigate back to catalog
+    });
+
+    // Load cart items on page load
     displayCart();
     </script>
 </body>

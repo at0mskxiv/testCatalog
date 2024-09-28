@@ -4,105 +4,208 @@ body {
     padding: 0;
 }
 
-.catalog-container {
+.logo {
+    width: 100%;
+    max-width: 250px;
+    height: 3em;
+    margin: 20px 0;
+}
+
+.header-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.catalog-container, #cart {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
     padding: 20px;
 }
 
-.item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
-    text-align: center;
-    width: 30%; /* For web: 3 in a row */
-    box-sizing: border-box;
+/* Unified styles for both catalog items and cart items */
+.item, .cart-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box; /* Include padding in width/height */
+    height: auto; /* Make sure height is adaptive */
+    justify-content: space-between;
 }
 
-.item img {
-    max-width: 100%;
-    height: 200px; /* Set a fixed height for web */
-    object-fit: cover; /* Crop image to fit */
+.item-image, .cart-item-preview img {
+    height: 150px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Ensure buttons and actions are styled the same */
+.add-to-cart-container, .cart-item-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    justify-content: space-between;
+}
+
+.add-to-cart-container .add-to-cart, .cart-item-actions {
+    background-color: #007bff;
+    color: white;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 15px;
+    width: 100%; /* Ensure the buttons span full width */
+    text-align: center;
+}
+
+.add-to-cart-icon .hover-text {
+    visibility: hidden; /* Hide hover text by default */
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.add-to-cart-icon:hover .hover-text {
+    visibility: visible; /* Show hover text on hover */
 }
 
 @media (max-width: 600px) {
-    .item {
-        width: 100%; /* For mobile: 1 in a row */
+    .catalog-container, #cart {
+        grid-template-columns: 1fr;
     }
 
-    .item img {
-        height: auto; /* Keep original height on mobile */
+    .item, .cart-item {
+        width: 100%;
+        box-sizing: border-box;
     }
+}
+
+/* Cart and catalog shared item details */
+.cart-item-details, .item-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 10px;
+}
+
+.cart-item-details > div {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space between elements */
+    width: 100%; /* Full width for the container */
+    margin-top: 10px; /* Add spacing above */
+}
+
+.price {
+    display: flex; /* Use flex for price container */
+    align-items: center; /* Align label and value vertically */
+    margin-right: 10px; /* Space between price and dropdown */
+}
+
+.quantity-selector {
+    display: flex; /* Use flex for dropdown alignment */
+    align-items: center; /* Center vertically */
+    flex-grow: 1; /* Allow to grow to fill space */
+    margin: 0 10px; /* Equal margin on left and right for even spacing */
+}
+
+.remove-button {
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Styles for buttons in the cart */
+.button-container {
+    text-align: center;
+}
+
+.continue-shopping, .delete-all {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.continue-shopping .material-icons,
+.delete-all .material-icons {
+    margin-right: 5px;
+}
+
+.continue-shopping:hover, .delete-all:hover {
+    background-color: #0056b3;
 }
 
 .cart-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 10px;
-    background-color: #007bff;
+    padding: 15px;
+    background-color: #007bff; /* Material-UI button color */
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 50%; /* Make it round */
     cursor: pointer;
-}
-
-.size-selector {
-    margin: 10px 0;
-}
-
-.add-to-cart {
-    padding: 10px 15px; /* Adjust padding */
-    background-color: #007bff; /* Button color */
-    color: white; /* Text color */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Round corners */
-    cursor: pointer; /* Change cursor on hover */
-    margin-top: 10px; /* Add spacing above the button */
-    width: 100%; /* Make the button full width */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-.add-to-cart:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-
-}
-.cart-item {
     display: flex;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid transparent; /* Make line transparent */
-    border-radius: 5px;
+    width: 60px;  /* Increased width for better visibility */
+    height: 60px; /* Increased height for better visibility */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Material-UI shadow effect */
+    z-index: 1000; /* Ensure it floats above content */
 }
 
-.cart-item-preview {
-    width: 20%; /* Set width of the image preview */
-    height: 160px; /* Fixed height to be twice the original */
-    overflow: hidden; /* Hide overflow */
+.cart-button .material-icons {
+    font-size: 30px; /* Size of the icon */
 }
 
-.cart-item-preview img {
-    width: 100%; /* Make sure image fits within the container */
-    height: 100%; /* Set height to fill the container */
-    object-fit: cover; /* Crop the image if needed */
-    border-radius: 5px;
-}
-
-.cart-item-details {
-    margin-left: 10px; /* Space between image and details */
-    flex: 1; /* Take remaining space */
-}
-
-.item-quantity {
-    margin: 10px 0; /* Space around the dropdown */
-}
-
-.header-container {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    margin: 20px 0; /* Optional: adds some space above and below the header */
+.cart-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
 }

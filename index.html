@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoes Shop</title>
     <link rel="stylesheet" href="styles.css"> <!-- Ensure the path is correct -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> <!-- Add Material Icons -->
+    <link rel="shortcut icon" href="#">
 </head>
 <body>
     <div class="header-container">
-        <h1>Shoes Shop</h1>
+        <img src="logo1.png" alt="Logo" class="logo"> <!-- Logo -->
     </div>
+
     <div class="catalog-container" id="catalog"></div>
-    <button class="cart-button" onclick="window.location.href='shoppingCart.html'">🛒</button>
+    
+    <!-- Cart button with a specific ID for interaction -->
+    <button class="cart-button material-icons" id="cart-button">shopping_cart</button>
 
     <script>
         // Fetch catalog from JSON file
@@ -38,28 +43,37 @@
                 const sizeOptions = item.sizes.map(size => `<option value="${size}">${size}</option>`).join('');
 
                 itemElement.innerHTML = `
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${item.image}" alt="${item.name}" class="item-image"> <!-- Added class for image -->
                     <h3>${item.name}</h3>
-                    <p>${item.description}</p>
                     <p>Price: ${item.price}</p>
-                    <div class="size-selector">
-                        <label for="size-${item.name}">Size:</label>
-                        <select id="size-${item.name}">
-                            <option value="" disabled selected>Select size</option>
-                            ${sizeOptions}
-                        </select>
+                    <div class="add-to-cart-container">
+                        <div class="size-selector">
+                            <label for="size-${item.name}">Size:</label>
+                            <select id="size-${item.name}">
+                                <option value="" disabled selected>Select size</option>
+                                ${sizeOptions}
+                            </select>
+                        </div>
+                        <div class="add-to-cart-icon" data-item='${JSON.stringify(item)}'>
+                            <span class="material-icons">add_shopping_cart</span> <!-- Use AddShoppingCart Icon -->
+                            <span class="hover-text">Add to Cart</span> <!-- Hover text -->
+                        </div>
                     </div>
-                    <button class="add-to-cart" data-item='${JSON.stringify(item)}'>Add to Cart</button>
                 `;
+
+                // Add click event to show description only when the image is clicked
+                const imageElement = itemElement.querySelector('.item-image');
+                imageElement.addEventListener('click', () => showDescription(item)); // Image click opens modal
 
                 catalogContainer.appendChild(itemElement);
             });
 
-            // Add event listeners to buttons
-            const buttons = document.querySelectorAll('.add-to-cart');
-            buttons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const item = JSON.parse(event.target.getAttribute('data-item'));
+            // Add event listeners to icons
+            const icons = document.querySelectorAll('.add-to-cart-icon');
+            icons.forEach(icon => {
+                icon.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent triggering image click
+                    const item = JSON.parse(event.target.closest('.add-to-cart-icon').getAttribute('data-item'));
                     const size = document.getElementById(`size-${item.name}`).value; // Get selected size
                     if (!size) {
                         alert('Please select a size before adding to cart.');
@@ -71,22 +85,72 @@
             });
         }
 
+        function showDescription(item) {
+            // Create a modal or popup to show item description
+            const modal = document.createElement('div');
+            modal.className = 'modal'; // Add class for styling
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h2>${item.name}</h2>
+                    <p>${item.description}</p>
+                    <p>Price: ${item.price}</p>
+                    <img src="${item.image}" alt="${item.name}" style="width: 100%; height: auto;">
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close the modal by clicking outside the modal content
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            // Close the modal when the close button is clicked
+            modal.querySelector('.close-button').addEventListener('click', () => {
+                modal.remove();
+            });
+
+            // Swipe up or down to close modal
+            let startY; // Variable to store the starting Y position
+
+            modal.addEventListener('touchstart', (event) => {
+                startY = event.touches[0].clientY; // Capture the initial touch position
+            });
+
+            modal.addEventListener('touchmove', (event) => {
+                const currentY = event.touches[0].clientY; // Get current touch position
+                if (currentY - startY > 50 || startY - currentY > 50) { // Check if swiped up or down enough
+                    modal.remove(); // Close the modal
+                }
+            });
+        }
+
         function addToCart(item) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existingItemIndex = cart.findIndex(cartItem => cartItem.name === item.name && cartItem.size === item.size);
+            const itemIndex = cart.findIndex(cartItem => cartItem.name === item.name && cartItem.size === item.size);
 
-            if (existingItemIndex > -1) {
-                cart[existingItemIndex].quantity += 1; // Increment quantity if item already exists
+            if (itemIndex > -1) {
+                // If item already in cart, increase quantity
+                cart[itemIndex].quantity += 1;
             } else {
-                item.quantity = 1; // Set quantity to 1 if item doesn't exist
+                // If new item, set quantity to 1
+                item.quantity = 1;
                 cart.push(item);
             }
 
             localStorage.setItem('cart', JSON.stringify(cart));
-            alert(`${item.name} (Size: ${item.size}) added to cart!`);
+            alert('Item added to cart!');
         }
 
+        // Load catalog on page load
         fetchCatalog();
+
+        // Add click event listener for the cart button
+        document.getElementById('cart-button').addEventListener('click', () => {
+            window.location.href = 'shoppingCart.html'; // Navigate to the shopping cart page
+        });
     </script>
 </body>
 </html>
