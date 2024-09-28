@@ -7,6 +7,41 @@
     <link rel="stylesheet" href="styles.css"> <!-- Ensure the path is correct -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> <!-- Add Material Icons -->
     <link rel="shortcut icon" href="#">
+    <style>
+        /* Modal styles */
+        .modal {
+            display: flex; /* Use flex to center content */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 80%;
+            max-height: 80%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            overflow: auto; /* Allow scrolling in modal if content overflows */
+        }
+
+        .modal img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Prevent scrolling on body when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
     <div class="header-container">
@@ -19,6 +54,8 @@
     <button class="cart-button material-icons" id="cart-button">shopping_cart</button>
 
     <script>
+        let isModalOpen = false; // Track whether the modal is open
+
         // Fetch catalog from JSON file
         async function fetchCatalog() {
             try {
@@ -68,10 +105,10 @@
                 catalogContainer.appendChild(itemElement);
             });
 
-                // Add a spacer after the last item
-                const spacer = document.createElement('div');
-                spacer.style.height = '20px'; // Adjust the height as needed
-                catalogContainer.appendChild(spacer);
+            // Add a spacer after the last item
+            const spacer = document.createElement('div');
+            spacer.style.height = '20px'; // Adjust the height as needed
+            catalogContainer.appendChild(spacer);
 
             // Add event listeners to icons
             const icons = document.querySelectorAll('.add-to-cart-icon');
@@ -100,36 +137,55 @@
                     <h2>${item.name}</h2>
                     <p>${item.description}</p>
                     <p>Price: ${item.price}</p>
-                    <img src="${item.image}" alt="${item.name}" style="width: 100%; height: auto;">
+                    <img src="${item.image}" alt="${item.name}">
                 </div>
             `;
             document.body.appendChild(modal);
 
+            // Prevent background scrolling
+            document.body.classList.add('modal-open');
+            isModalOpen = true; // Set modal open state
+
             // Close the modal by clicking outside the modal content
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
-                    modal.remove();
+                    closeModal(modal);
                 }
             });
 
             // Close the modal when the close button is clicked
             modal.querySelector('.close-button').addEventListener('click', () => {
-                modal.remove();
+                closeModal(modal);
             });
 
             // Swipe up or down to close modal
             let startY; // Variable to store the starting Y position
 
-            modal.addEventListener('touchstart', (event) => {
+            const touchStartHandler = (event) => {
                 startY = event.touches[0].clientY; // Capture the initial touch position
-            });
+            };
 
-            modal.addEventListener('touchmove', (event) => {
+            const touchMoveHandler = (event) => {
                 const currentY = event.touches[0].clientY; // Get current touch position
                 if (currentY - startY > 50 || startY - currentY > 50) { // Check if swiped up or down enough
-                    modal.remove(); // Close the modal
+                    closeModal(modal); // Close the modal
                 }
+            };
+
+            modal.addEventListener('touchstart', touchStartHandler);
+            modal.addEventListener('touchmove', touchMoveHandler);
+
+            modal.addEventListener('transitionend', () => {
+                // Clean up touch event listeners after modal is closed
+                modal.removeEventListener('touchstart', touchStartHandler);
+                modal.removeEventListener('touchmove', touchMoveHandler);
             });
+        }
+
+        function closeModal(modal) {
+            modal.remove(); // Remove modal from DOM
+            document.body.classList.remove('modal-open'); // Re-enable scrolling
+            isModalOpen = false; // Reset modal open state
         }
 
         function addToCart(item) {
